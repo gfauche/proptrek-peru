@@ -314,6 +314,14 @@
     background: #050811;
   }
 
+
+  /* CELULAR: el mapa arriba y los filtros debajo */
+  @media (max-width: 760px) {
+    body { height: auto; min-height: 100vh; overflow: auto; }
+    .layout { flex-direction: column; overflow: visible; }
+    #map { order: -1; flex: none; width: 100%; height: 68vh; min-height: 380px; }
+    aside { width: auto; overflow: visible; border-right: none; border-top: 1px solid var(--border); }
+  }
   /* POPUPS */
   .leaflet-popup-content-wrapper {
     background: #0f172a !important;
@@ -791,10 +799,9 @@ const map = L.map('map', {
 });
 
 const gmapsLayers = {
-  gmaps_calles: L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png', {
-    subdomains: 'abcd',
-    maxZoom: 20,
-    attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+  gmaps_calles: L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
   }),
   gmaps_hibrido: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     maxZoom: 19,
@@ -808,9 +815,9 @@ const gmapsLayers = {
     maxZoom: 19,
     attribution: 'Tiles &copy; Esri'
   }),
-  carto_light: L.tileLayer('https://a.basemaps.cartocdn.com/light_all/{z}/{y}/{x}.png', {
-    maxZoom: 19,
-    attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+  carto_light: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 16,
+    attribution: 'Tiles &copy; Esri &mdash; Esri, HERE, Garmin'
   }),
   osm: L.tileLayer('https://tile.openstreetmap.org/{z}/{y}/{x}.png', {
     maxZoom: 19,
@@ -824,16 +831,13 @@ let currentBaseLayer = gmapsLayers.gmaps_calles;
 currentBaseLayer.addTo(map);
 
 const baseLayersControl = {
-  "🗺️ Google Maps Calles (Señalización)": gmapsLayers.gmaps_calles,
-  "🛰️ Google Maps Satélite + Calles": gmapsLayers.gmaps_hibrido,
-  "⛰️ Google Maps Terreno": gmapsLayers.gmaps_terreno,
-  "🏙️ Esri Calles HD": gmapsLayers.esri_calles,
-  "⚪ CartoDB Ejecutivo": gmapsLayers.carto_light,
-  "🧭 OpenStreetMap": gmapsLayers.osm
+  "🗺️ Calles (OpenStreetMap)": gmapsLayers.gmaps_calles,
+  "🛰️ Satélite (Esri)": gmapsLayers.gmaps_hibrido,
+  "⛰️ Relieve (Esri)": gmapsLayers.gmaps_terreno,
+  "🏙️ Calles (Esri)": gmapsLayers.esri_calles,
+  "⚪ Gris claro (Esri)": gmapsLayers.carto_light
 };
-const overlayControl = {
-  "🚦 Tráfico y Señalización Vial Google": gmapsTrafficOverlay
-};
+const overlayControl = {};
 L.control.layers(baseLayersControl, overlayControl, { position: 'topright' }).addTo(map);
 
 function cambiarMapaBase(key, btnEl) {
