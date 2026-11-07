@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giancarlo Fauche · Hub Maestro de Artefactos</title>
+    <link rel="icon" href="https://github.githubassets.com/favicons/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            --bg-base: #090d16;
+            --bg-card: #0f172a;
+            --bg-card-hover: #1e293b;
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-highlight: rgba(56, 189, 248, 0.3);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --brand-primary: #38bdf8;
+            --brand-accent: #10b981;
+            --brand-purple: #a855f7;
+            --badge-bg: rgba(56, 189, 248, 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            min-height: 100vh;
+            line-height: 1.6;
+            padding-bottom: 80px;
+        }
+
+        /* Glow Background Effects */
+        .ambient-glow {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1000px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.08) 0%, rgba(168, 85, 247, 0.04) 50%, transparent 80%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header / Hero Section */
+        header {
+            padding: 60px 0 36px;
+            text-align: center;
+        }
+
+        .avatar-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--brand-primary);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: clamp(32px, 5vw, 48px);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            font-size: 17px;
+            color: var(--text-muted);
+            max-width: 650px;
+            margin: 0 auto 28px;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: #ffffff;
+            color: #090d16;
+            border: 1px solid #ffffff;
+        }
+        .btn-primary:hover {
+            background: #e2e8f0;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-main);
+            border: 1px solid var(--border-subtle);
+        }
+        .btn-secondary:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-highlight);
+            transform: translateY(-1px);
+        }
+
+        /* Search & Filters */
+        .controls-wrapper {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .search-input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 16px 14px 44px;
+            background: #090d16;
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 15px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .search-input:focus {
+            border-color: var(--brand-primary);
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .category-pills {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            scrollbar-width: none;
+        }
+        .category-pills::-webkit-scrollbar { display: none; }
+
+        .pill {
+            padding: 8px 16px;
+            border-radius: 9999px;
+            font-size: 13px;
+            font-weight: 600;
+            background: transparent;
+            border: 1px solid var(--border-subtle);
+            color: var(--text-muted);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .pill:hover {
+            color: var(--text-main);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        .pill.active {
+            background: var(--brand-primary);
+            color: #090d16;
+            border-color: var(--brand-primary);
+        }
+
+        /* Artifacts Grid */
+        .artifacts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+        .card:hover {
+            transform: translateY(-3px);
+            border-color: var(--border-highlight);
+            box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        .card-top {
+            margin-bottom: 16px;
+        }
+
+        .card-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .type-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+        .badge-markdown { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+        .badge-codigo { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .badge-imagen { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+        .badge-pdf { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+
+        .file-size {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .card-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .card-desc {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        .tag-cloud {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .tag {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: #cbd5e1;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            padding-top: 14px;
+        }
+
+        .action-link {
+            flex: 1;
+            text-align: center;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .link-view {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--brand-primary);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            cursor: pointer;
+        }
+        .link-view:hover {
+            background: rgba(56, 189, 248, 0.2);
+        }
+        .link-gh {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-subtle);
+        }
+        .link-gh:hover {
+            color: var(--text-main);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Empty State */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        /* Modal Preview */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
+        }
+        .modal-container {
+            background: #0f172a;
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            width: 100%;
+            max-width: 900px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+        }
+        .modal-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0b1120;
+        }
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 4px;
+        }
+        .modal-close:hover { color: var(--text-main); }
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            color: #cbd5e1;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+        .modal-body h1, .modal-body h2, .modal-body h3 {
+            color: #ffffff;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .modal-body table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        .modal-body th, .modal-body td {
+            border: 1px solid #334155;
+            padding: 8px 12px;
+            text-align: left;
+        }
+        .modal-body th { background: #1e293b; }
+        .modal-body code {
+            background: rgba(0,0,0,0.4);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+        }
+        .modal-body pre code {
+            display: block;
+            padding: 12px;
+            overflow-x: auto;
+        }
+        .modal-body img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin: 12px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-glow"></div>
+
+    <div class="container">
+        <header>
+            <div class="avatar-badge">
+                <span>⚡ Giancarlo Fauche</span>
+                <span>•</span>
+                <span>Analista Aumentado</span>
+            </div>
+            <h1>Bóveda Digital & Hub de Artefactos</h1>
+            <p class="subtitle">Repositorio permanente de investigación, modelos cuantitativos, arquitecturas de IA agéntica y sistemas operacionales sin riesgo de pérdida.</p>
+
+            <div class="social-links">
+                <a href="https://github.com/gfauche" target="_blank" class="btn btn-primary">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+                    GitHub Profile
+                </a>
+                <a href="https://github.com/gfauche/gfauche" target="_blank" class="btn btn-secondary">
+                    <span>📁</span> Repositorio Maestro
+                </a>
+                <a href="https://linkedin.com/in/giancarlofauche" target="_blank" class="btn btn-secondary">
+                    <span>💼</span> LinkedIn
+                </a>
+                <a href="http://localhost:4525/" target="_blank" class="btn btn-secondary" style="border-color: rgba(56, 189, 248, 0.4);">
+                    <span>🤖</span> Recepcionista 24/7 (Local)
+                </a>
+            </div>
+        </header>
+
+        <!-- Controls: Search & Category Pills -->
+        <div class="controls-wrapper">
+            <div class="search-input-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" class="search-input" placeholder="Buscar artefacto por título, palabra clave o tag (ej: WhatsApp, Python, AEO, Hormozi, Trading)...">
+            </div>
+            <div class="category-pills" id="categoryPills">
+                <button class="pill active" data-cat="all">Todos (48)</button>
+                <button class="pill" data-cat="agentes">🤖 Agentes & Automatización</button>
+                <button class="pill" data-cat="macroeconomia">📈 Macro & Trading</button>
+                <button class="pill" data-cat="negocio">💼 Negocio & Empleabilidad</button>
+                <button class="pill" data-cat="audiovisual">🎬 Audiovisual & Sitcom</button>
+                <button class="pill" data-cat="desarrollo">🐍 Data Science & AEO</button>
+                <button class="pill" data-cat="actas">🏛️ Actas de Auditoría</button>
+            </div>
+        </div>
+
+        <!-- Artifacts Grid -->
+        <div class="artifacts-grid" id="artifactsGrid"></div>
+    </div>
+
+    <!-- Modal for Preview -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Detalle del Artefacto</div>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">Cargando contenido...</div>
+        </div>
+    </div>
+
+    <script>
+        const ARTEFACTOS = [{"id": "agency_agents_hub_guide", "titulo": "Guía del Hub de 270 Agency Agents", "descripcion": "Directorio y framework de orquestación de agentes especializados de Agency Swarm.", "categoria": "agentes_y_automatizacion", "categoria_nombre": "🤖 Agentes & Automatización", "archivo": "agency_agents_hub_guide.md", "ruta_relativa": "artefactos/01_agentes_y_automatizacion/agency_agents_hub_guide.md", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/01_agentes_y_automatizacion/agency_agents_hub_guide.md", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/01_agentes_y_automatizacion/agency_agents_hub_guide.md", "tipo": "markdown", "tamano_kb": 5.2, "tags": ["Agency Swarm", "270 Agentes", "Orquestación"]}, {"id": "guia_bots_ventas_pyme_y_pasarela_youpi", "titulo": "Guía de Bots de Venta PYME y Pasarela Youpi", "descripcion": "Estrategia de bots de conversión para comercio local y pagos digitales en Perú.", "categoria": "agentes_y_automatizacion", "categoria_nombre": "🤖 Agentes & Automatización", "archivo": "guia_bots_ventas_pyme_y_pasarela_youpi.md", "ruta_relativa": "artefactos/01_agentes_y_automatizacion/guia_bots_ventas_pyme_y_pasarela_youpi.md", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/01_agentes_y_automatizacion/guia_bots_ventas_pyme_y_pasarela_youpi.md", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/01_agentes_y_automatizacion/guia_bots_ventas_pyme_y_pasarela_youpi.md", "tipo": "markdown", "tamano_kb": 5.6, "tags": ["PYME", "Ventas", "Pasarela", "Youpi"]}, {"id": "GUIA_DESPLIEGUE_AGENTE_AGENDADOR", "titulo": "Recepcionista Agendador 24/7 (Arquitectura Lazarus)", "descripcion": "Flujo de conversión de notas de voz en WhatsApp/Telegram a citas confirmadas en 41s con Google Calendar.", "categoria": "agentes_y_automatizacion", "categoria_nombre": "🤖 Agentes & Automatización", "archivo": "GUIA_DESPLIEGUE_AGENTE_AGENDADOR.md", "ruta_relativa": "artefactos/01_agentes_y_automatizacion/GUIA_DESPLIEGUE_AGENTE_AGENDADOR.md", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/01_agentes_y_automatizacion/GUIA_DESPLIEGUE_AGENTE_AGENDADOR.md", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/01_agentes_y_automatizacion/GUIA_DESPLIEGUE_AGENTE_AGENDADOR.md", "tipo": "markdown", "tamano_kb": 2.2, "tags": ["WhatsApp", "Telegram", "Google Calendar", "41s", "Agendador"]}, {"id": "GUIA_MAESTRA_HTTPSMS_GATEWAY_ANDROID", "titulo": "Guía Maestra httpSMS Gateway Android", "descripcion": "Pasarela SMS local usando un teléfono Android y SIM local a costo S/ 0 por mensaje.", "categoria": "agentes_y_automatizacion", "categoria_nombre": "🤖 Agentes & Automatización", "archivo": "GUIA_MAESTRA_HTTPSMS_GATEWAY_ANDROID.md", "ruta_relativa": "artefactos/01_agentes_y_automatizacion/GUIA_MAESTRA_HTTPSMS_GATEWAY_ANDROID.md", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/01_agentes_y_automatizacion/GUIA_MAESTRA_HTTPSMS_GATEWAY_ANDROID.md", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/01_agentes_y_automatizacion/GUIA_MAESTRA_HTTPSMS_GATEWAY_ANDROID.md", "tipo": "markdown", "tamano_kb": 4.3, "tags": ["httpSMS", "Android", "SMS Gateway", "Costo Cero"]}, {"id": "GUIA_ROOTLAB_ASISTENTE_VOZ_TELEGRAM", "titulo": "Guía RootLab: Asistente de Voz IA en Telegram", "descripcion": "Homelab y bot por voz con Gemma 4 / Hermes Agent 24/7 en Telegram.", "categoria": "agentes_y_automatizacion", "categoria_nombre": "🤖 Agentes & Automatización", "archivo": "GUIA_ROOTLAB_ASISTENTE_VOZ_TELEGRAM.md", "ruta_relativa": "artefactos/01_agentes_y_automatizacion/GUIA_ROOTLAB_ASISTENTE_VOZ_TELEGRAM.md", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/01_agentes_y_automatizacion/GUIA_ROOTLAB_ASISTENTE_VOZ_TELEGRAM.md", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/01_agentes_y_automatizacion/GUIA_ROOTLAB_ASISTENTE_VOZ_TELEGRAM.md", "tipo": "markdown", "tamano_kb": 3.4, "tags": ["Telegram", "Voz", "RootLab", "Hermes", "Homelab"]}, {"id": "motor_agendador", "titulo": "Motor Agendador Inteligente (Python Core)", "descripcion": "Script de transcripción STT con Whisper/Google Speech, clasificación NLP y confirmación en tiempo real.", "categoria": "agentes_y_automatizacion", "categoria_nombre": "🤖 Agentes & Automatización", "archivo": "motor_agendador.py", "ruta_relativa": "artefactos/01_agentes_y_automatizacion/motor_agendador.py", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/01_agentes_y_automatizacion/motor_agendador.py", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/01_agentes_y_automatizacion/motor_agendador.py", "tipo": "codigo", "tamano_kb": 9.6, "tags": ["Python", "STT", "NLP", "Cancha", "Coach"]}, {"id": "servidor_recepcionista", "titulo": "Servidor HTTP Recepcionista + Webhooks", "descripcion": "Servidor con endpoints de webhook para WhatsApp/SMS y dashboard en tiempo real con Meet.", "categoria": "agentes_y_automatizacion", "categoria_nombre": "🤖 Agentes & Automatización", "archivo": "servidor_recepcionista.py", "ruta_relativa": "artefactos/01_agentes_y_automatizacion/servidor_recepcionista.py", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/01_agentes_y_automatizacion/servidor_recepcionista.py", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/01_agentes_y_automatizacion/servidor_recepcionista.py", "tipo": "codigo", "tamano_kb": 14.4, "tags": ["HTTP Server", "Dashboard", "Webhooks", "FastAPI/BaseHTTP"]}, {"id": "DASHBOARD_PROPTREK_3D_PERU", "titulo": "Dashboard PropTrek 3D Perú (WebGL)", "descripcion": "Visualizador 3D interactivo WebGL (MapLibre GL JS) estilo @gzuz.tech con filtros CODIP, timeline macro y capas georreferenciadas.", "categoria": "macroeconomia_y_trading", "categoria_nombre": "📈 Macroeconomía & Trading Cuantitativo", "archivo": "DASHBOARD_PROPTREK_3D_PERU.html", "ruta_relativa": "artefactos/02_macroeconomia_y_trading/DASHBOARD_PROPTREK_3D_PERU.html", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/02_macroeconomia_y_trading/DASHBOARD_PROPTREK_3D_PERU.html", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/02_macroeconomia_y_trading/DASHBOARD_PROPTREK_3D_PERU.html", "tipo": "archivo", "tamano_kb": 741.5, "tags": ["3D", "WebGL", "MapLibre", "PropTrek", "Perú"]}, {"id": "ecosistema_sdd_analista_aumentado", "titulo": "Ecosistema SDD: Analista Aumentado", "descripcion": "Manifiesto de la Tríada BQuant + IA + Obsidian con Error Testing Gates.", "categoria": "macroeconomia_y_trading", "categoria_nombre": "📈 Macroeconomía & Trading Cuantitativo", "archivo": "ecosistema_sdd_analista_aumentado.md", "ruta_relativa": "artefactos/02_macroeconomia_y_trading/ecosistema_sdd_analista_aumentado.md", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/02_macroeconomia_y_trading/ecosistema_sdd_analista_aumentado.md", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/02_macroeconomia_y_trading/ecosistema_sdd_analista_aumentado.md", "tipo": "markdown", "tamano_kb": 5.3, "tags": ["BQuant", "Obsidian", "Tríada", "Analista Aumentado"]}, {"id": "MAPA_ECOSISTEMA_INMOBILIARIO_Y_BANCARIO_PERU", "titulo": "Mapa Ecosistema Inmobiliario y Bancario Perú", "descripcion": "Mapa territorial Leaflet con 1,347 proyectos georreferenciados y 35 sedes de entidades financieras (Bancos, Cajas, Cooperativas).", "categoria": "macroeconomia_y_trading", "categoria_nombre": "📈 Macroeconomía & Trading Cuantitativo", "archivo": "MAPA_ECOSISTEMA_INMOBILIARIO_Y_BANCARIO_PERU.html", "ruta_relativa": "artefactos/02_macroeconomia_y_trading/MAPA_ECOSISTEMA_INMOBILIARIO_Y_BANCARIO_PERU.html", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/02_macroeconomia_y_trading/MAPA_ECOSISTEMA_INMOBILIARIO_Y_BANCARIO_PERU.html", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/02_macroeconomia_y_trading/MAPA_ECOSISTEMA_INMOBILIARIO_Y_BANCARIO_PERU.html", "tipo": "archivo", "tamano_kb": 950.4, "tags": ["Leaflet", "Bancos", "Proyectos", "Territorio", "SBS"]}, {"id": "MAPA_INTERACTIVO_PROYECTOS_PERU", "titulo": "Mapa Interactivo de Proyectos Residenciales Perú", "descripcion": "Visualizador georreferenciado de proyectos residenciales, precios de oferta vs cierre y distribución distrital.", "categoria": "macroeconomia_y_trading", "categoria_nombre": "📈 Macroeconomía & Trading Cuantitativo", "archivo": "MAPA_INTERACTIVO_PROYECTOS_PERU.html", "ruta_relativa": "artefactos/02_macroeconomia_y_trading/MAPA_INTERACTIVO_PROYECTOS_PERU.html", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/02_macroeconomia_y_trading/MAPA_INTERACTIVO_PROYECTOS_PERU.html", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/02_macroeconomia_y_trading/MAPA_INTERACTIVO_PROYECTOS_PERU.html", "tipo": "archivo", "tamano_kb": 833.0, "tags": ["Proyectos", "Residencial", "Precios", "Lima"]}, {"id": "MAPA_PASSTHROUGH_TASAS_Y_MERCADO_HIPOTECARIO_PERU", "titulo": "Mapa Passthrough de Tasas y Mercado Hipotecario", "descripcion": "Transmisión de la tasa de política monetaria BCRP hacia tasas hipotecarias bancarias y microfinancieras.", "categoria": "macroeconomia_y_trading", "categoria_nombre": "📈 Macroeconomía & Trading Cuantitativo", "archivo": "MAPA_PASSTHROUGH_TASAS_Y_MERCADO_HIPOTECARIO_PERU.html", "ruta_relativa": "artefactos/02_macroeconomia_y_trading/MAPA_PASSTHROUGH_TASAS_Y_MERCADO_HIPOTECARIO_PERU.html", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/02_macroeconomia_y_trading/MAPA_PASSTHROUGH_TASAS_Y_MERCADO_HIPOTECARIO_PERU.html", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/02_macroeconomia_y_trading/MAPA_PASSTHROUGH_TASAS_Y_MERCADO_HIPOTECARIO_PERU.html", "tipo": "archivo", "tamano_kb": 31.2, "tags": ["BCRP", "Passthrough", "Tasas", "Hipotecas", "Econometría"]}, {"id": "MAPA_RESILIENCIA_FEN_Y_VOCACION_ECONOMICA_PERU", "titulo": "Mapa de Resiliencia Climática FEN y Vocación Económica", "descripcion": "Mapa de 12 puntos críticos por Fenómeno El Niño (puentes y ríos desbordables) y 14 polos de vocación productiva departamental.", "categoria": "macroeconomia_y_trading", "categoria_nombre": "📈 Macroeconomía & Trading Cuantitativo", "archivo": "MAPA_RESILIENCIA_FEN_Y_VOCACION_ECONOMICA_PERU.html", "ruta_relativa": "artefactos/02_macroeconomia_y_trading/MAPA_RESILIENCIA_FEN_Y_VOCACION_ECONOMICA_PERU.html", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/02_macroeconomia_y_trading/MAPA_RESILIENCIA_FEN_Y_VOCACION_ECONOMICA_PERU.html", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/02_macroeconomia_y_trading/MAPA_RESILIENCIA_FEN_Y_VOCACION_ECONOMICA_PERU.html", "tipo": "archivo", "tamano_kb": 1173.2, "tags": ["FEN", "El Niño", "Clima", "Riesgos", "Geoeconomía"]}, {"id": "PRESENTACION_EJECUTIVA_MERCADO_INMOBILIARIO_PERU_2026", "titulo": "Láminas Ejecutivas: Mercado Inmobiliario Perú 2026", "descripcion": "Presentación ejecutiva 16:9 interactiva con Chart.js y exportación directa a PDF.", "categoria": "macroeconomia_y_trading", "categoria_nombre": "📈 Macroeconomía & Trading Cuantitativo", "archivo": "PRESENTACION_EJECUTIVA_MERCADO_INMOBILIARIO_PERU_2026.html", "ruta_relativa": "artefactos/02_macroeconomia_y_trading/PRESENTACION_EJECUTIVA_MERCADO_INMOBILIARIO_PERU_2026.html", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/02_macroeconomia_y_trading/PRESENTACION_EJECUTIVA_MERCADO_INMOBILIARIO_PERU_2026.html", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/02_macroeconomia_y_trading/PRESENTACION_EJECUTIVA_MERCADO_INMOBILIARIO_PERU_2026.html", "tipo": "archivo", "tamano_kb": 31.6, "tags": ["Presentación", "Slides", "Chart.js", "2026"]}, {"id": "acta_junta_directiva_4_jueces", "titulo": "Acta de Junta Directiva: Los 4 Jueces", "descripcion": "Dictamen de productividad y rentabilización de Hormozi, Fuentes, Wolf y Balarezo.", "categoria": "negocio_y_empleabilidad", "categoria_nombre": "💼 Negocio, Ofertas & Empleabilidad", "archivo": "acta_junta_directiva_4_jueces.md", "ruta_relativa": "artefactos/03_negocio_y_empleabilidad/acta_junta_directiva_4_jueces.md", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/03_negocio_y_empleabilidad/acta_junta_directiva_4_jueces.md", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/03_negocio_y_empleabilidad/acta_junta_directiva_4_jueces.md", "tipo": "markdown", "tamano_kb": 5.4, "tags": ["Comité de 4", "Hormozi", "Productividad", "Gobernanza"]}, {"id": "carrusel_hipotecario_alquileres_2026", "titulo": "Carrusel PDF: ¿Comprar o Alquilar en Perú 2026?", "descripcion": "Documento visual de 7 diapositivas con análisis de tasas, cuotas y costo de oportunidad.", "categoria": "negocio_y_empleabilidad", "categoria_nombre": "💼 Negocio, Ofertas & Empleabilidad", "archivo": "carrusel_hipotecario_alquileres_2026.pdf", "ruta_relativa": "artefactos/03_negocio_y_empleabilidad/carrusel_hipotecario_alquileres_2026.pdf", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/03_negocio_y_empleabilidad/carrusel_hipotecario_alquileres_2026.pdf", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/03_negocio_y_empleabilidad/carrusel_hipotecario_alquileres_2026.pdf", "tipo": "pdf", "tamano_kb": 79.2, "tags": ["Inmobiliario", "Carrusel", "LinkedIn", "Tasas 2026"]}, {"id": "guia_entrevistas_tech_giancarlo_fauche", "titulo": "Guía Maestra de Entrevistas Tech y Empleabilidad", "descripcion": "Protocolo de posicionamiento salarial \\$3,000-\\$5,000 USD y storytelling técnico.", "categoria": "negocio_y_empleabilidad", "categoria_nombre": "💼 Negocio, Ofertas & Empleabilidad", "archivo": "guia_entrevistas_tech_giancarlo_fauche.md", "ruta_relativa": "artefactos/03_negocio_y_empleabilidad/guia_entrevistas_tech_giancarlo_fauche.md", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/03_negocio_y_empleabilidad/guia_entrevistas_tech_giancarlo_fauche.md", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/03_negocio_y_empleabilidad/guia_entrevistas_tech_giancarlo_fauche.md", "tipo": "markdown", "tamano_kb": 9.2, "tags": ["Entrevistas", "Empleabilidad", "Banca", "Senior Tech"]}, {"id": "GUIA_MAESTRA_TI_E_IA_BAJO_CONTROL", "titulo": "TI e IA Bajo Control (Juan Pablo Amón)", "descripcion": "13 capítulos, 37 prompts y 15 plantillas de gobernanza (COBIT 2019, ITIL 5, NIST AI RMF, ISO 42001).", "categoria": "negocio_y_empleabilidad", "categoria_nombre": "💼 Negocio, Ofertas & Empleabilidad", "archivo": "GUIA_MAESTRA_TI_E_IA_BAJO_CONTROL.md", "ruta_relativa": "artefactos/03_negocio_y_empleabilidad/GUIA_MAESTRA_TI_E_IA_BAJO_CONTROL.md", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/03_negocio_y_empleabilidad/GUIA_MAESTRA_TI_E_IA_BAJO_CONTROL.md", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/03_negocio_y_empleabilidad/GUIA_MAESTRA_TI_E_IA_BAJO_CONTROL.md", "tipo": "markdown", "tamano_kb": 6.4, "tags": ["COBIT", "ITIL 5", "NIST AI RMF", "ISO 42001", "Gobernanza"]}, {"id": "lead_magnet_empleabilidad_banca_funnel", "titulo": "Lead Magnet: Empleabilidad y Banca", "descripcion": "Embudo de captación orgánica para profesionales bancarios y microfinancieros.", "categoria": "negocio_y_empleabilidad", "categoria_nombre": "💼 Negocio, Ofertas & Empleabilidad", "archivo": "lead_magnet_empleabilidad_banca_funnel.md", "ruta_relativa": "artefactos/03_negocio_y_empleabilidad/lead_magnet_empleabilidad_banca_funnel.md", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/03_negocio_y_empleabilidad/lead_magnet_empleabilidad_banca_funnel.md", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/03_negocio_y_empleabilidad/lead_magnet_empleabilidad_banca_funnel.md", "tipo": "markdown", "tamano_kb": 5.8, "tags": ["Lead Magnet", "Banca", "Funnel", "LinkedIn"]}, {"id": "plan_maestro_navidad_hotmart_bots", "titulo": "Plan Maestro Navidad: Hotmart & Bots", "descripcion": "Estrategia de comercialización digital de productos de alto impacto para fin de año.", "categoria": "negocio_y_empleabilidad", "categoria_nombre": "💼 Negocio, Ofertas & Empleabilidad", "archivo": "plan_maestro_navidad_hotmart_bots.md", "ruta_relativa": "artefactos/03_negocio_y_empleabilidad/plan_maestro_navidad_hotmart_bots.md", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/03_negocio_y_empleabilidad/plan_maestro_navidad_hotmart_bots.md", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/03_negocio_y_empleabilidad/plan_maestro_navidad_hotmart_bots.md", "tipo": "markdown", "tamano_kb": 4.7, "tags": ["Hotmart", "Lanzamiento", "Navidad"]}, {"id": "plan_rentabilizacion_300_a_1500_usd", "titulo": "Plan de Rentabilización \\$300 a \\$1,500 USD", "descripcion": "Escalera de ofertas de 90 días con framework Alex Hormozi para consultoría y bots.", "categoria": "negocio_y_empleabilidad", "categoria_nombre": "💼 Negocio, Ofertas & Empleabilidad", "archivo": "plan_rentabilizacion_300_a_1500_usd.md", "ruta_relativa": "artefactos/03_negocio_y_empleabilidad/plan_rentabilizacion_300_a_1500_usd.md", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/03_negocio_y_empleabilidad/plan_rentabilizacion_300_a_1500_usd.md", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/03_negocio_y_empleabilidad/plan_rentabilizacion_300_a_1500_usd.md", "tipo": "markdown", "tamano_kb": 4.9, "tags": ["Hormozi", "Pricing", "Escala", "High-Ticket"]}, {"id": "SISTEMA_PRODUCTIVIDAD_BONIFAZ_COMITE_4", "titulo": "Sistema de Productividad Bonifaz & Comité de 4", "descripcion": "Protocolo operativo diario con timeboxing y validación cruzada por 4 arquetipos ejecutivos.", "categoria": "negocio_y_empleabilidad", "categoria_nombre": "💼 Negocio, Ofertas & Empleabilidad", "archivo": "SISTEMA_PRODUCTIVIDAD_BONIFAZ_COMITE_4.md", "ruta_relativa": "artefactos/03_negocio_y_empleabilidad/SISTEMA_PRODUCTIVIDAD_BONIFAZ_COMITE_4.md", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/03_negocio_y_empleabilidad/SISTEMA_PRODUCTIVIDAD_BONIFAZ_COMITE_4.md", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/03_negocio_y_empleabilidad/SISTEMA_PRODUCTIVIDAD_BONIFAZ_COMITE_4.md", "tipo": "markdown", "tamano_kb": 17.8, "tags": ["Bonifaz", "Timeboxing", "Comité 4"]}, {"id": "01_portada", "titulo": "01 Portada", "descripcion": "Artefacto del ecosistema: 01_portada.png", "categoria": "audiovisual_y_sitcom", "categoria_nombre": "🎬 Producción Audiovisual, Sitcom & Remotion", "archivo": "01_portada.png", "ruta_relativa": "artefactos/04_audiovisual_y_sitcom/01_portada.png", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/04_audiovisual_y_sitcom/01_portada.png", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/04_audiovisual_y_sitcom/01_portada.png", "tipo": "imagen", "tamano_kb": 84.4, "tags": ["IMAGEN", "Audiovisual"]}, {"id": "02_pregunta_1", "titulo": "02 Pregunta 1", "descripcion": "Artefacto del ecosistema: 02_pregunta_1.png", "categoria": "audiovisual_y_sitcom", "categoria_nombre": "🎬 Producción Audiovisual, Sitcom & Remotion", "archivo": "02_pregunta_1.png", "ruta_relativa": "artefactos/04_audiovisual_y_sitcom/02_pregunta_1.png", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/04_audiovisual_y_sitcom/02_pregunta_1.png", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/04_audiovisual_y_sitcom/02_pregunta_1.png", "tipo": "imagen", "tamano_kb": 63.0, "tags": ["IMAGEN", "Audiovisual"]}, {"id": "03_pregunta_2", "titulo": "03 Pregunta 2", "descripcion": "Artefacto del ecosistema: 03_pregunta_2.png", "categoria": "audiovisual_y_sitcom", "categoria_nombre": "🎬 Producción Audiovisual, Sitcom & Remotion", "archivo": "03_pregunta_2.png", "ruta_relativa": "artefactos/04_audiovisual_y_sitcom/03_pregunta_2.png", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/04_audiovisual_y_sitcom/03_pregunta_2.png", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/04_audiovisual_y_sitcom/03_pregunta_2.png", "tipo": "imagen", "tamano_kb": 62.8, "tags": ["IMAGEN", "Audiovisual"]}, {"id": "04_pregunta_3", "titulo": "04 Pregunta 3", "descripcion": "Artefacto del ecosistema: 04_pregunta_3.png", "categoria": "audiovisual_y_sitcom", "categoria_nombre": "🎬 Producción Audiovisual, Sitcom & Remotion", "archivo": "04_pregunta_3.png", "ruta_relativa": "artefactos/04_audiovisual_y_sitcom/04_pregunta_3.png", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/04_audiovisual_y_sitcom/04_pregunta_3.png", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/04_audiovisual_y_sitcom/04_pregunta_3.png", "tipo": "imagen", "tamano_kb": 58.7, "tags": ["IMAGEN", "Audiovisual"]}, {"id": "05_pregunta_4", "titulo": "05 Pregunta 4", "descripcion": "Artefacto del ecosistema: 05_pregunta_4.png", "categoria": "audiovisual_y_sitcom", "categoria_nombre": "🎬 Producción Audiovisual, Sitcom & Remotion", "archivo": "05_pregunta_4.png", "ruta_relativa": "artefactos/04_audiovisual_y_sitcom/05_pregunta_4.png", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/04_audiovisual_y_sitcom/05_pregunta_4.png", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/04_audiovisual_y_sitcom/05_pregunta_4.png", "tipo": "imagen", "tamano_kb": 67.7, "tags": ["IMAGEN", "Audiovisual"]}, {"id": "06_pregunta_5", "titulo": "06 Pregunta 5", "descripcion": "Artefacto del ecosistema: 06_pregunta_5.png", "categoria": "audiovisual_y_sitcom", "categoria_nombre": "🎬 Producción Audiovisual, Sitcom & Remotion", "archivo": "06_pregunta_5.png", "ruta_relativa": "artefactos/04_audiovisual_y_sitcom/06_pregunta_5.png", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/04_audiovisual_y_sitcom/06_pregunta_5.png", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/04_audiovisual_y_sitcom/06_pregunta_5.png", "tipo": "imagen", "tamano_kb": 63.0, "tags": ["IMAGEN", "Audiovisual"]}, {"id": "07_cta", "titulo": "07 Cta", "descripcion": "Artefacto del ecosistema: 07_cta.png", "categoria": "audiovisual_y_sitcom", "categoria_nombre": "🎬 Producción Audiovisual, Sitcom & Remotion", "archivo": "07_cta.png", "ruta_relativa": "artefactos/04_audiovisual_y_sitcom/07_cta.png", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/04_audiovisual_y_sitcom/07_cta.png", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/04_audiovisual_y_sitcom/07_cta.png", "tipo": "imagen", "tamano_kb": 83.8, "tags": ["IMAGEN", "Audiovisual"]}, {"id": "banner_linkedin_finanzas_decodificadas", "titulo": "Banner Oficial: Finanzas Decodificadas", "descripcion": "Encabezado profesional para LinkedIn con identidad de marca.", "categoria": "audiovisual_y_sitcom", "categoria_nombre": "🎬 Producción Audiovisual, Sitcom & Remotion", "archivo": "banner_linkedin_finanzas_decodificadas.png", "ruta_relativa": "artefactos/04_audiovisual_y_sitcom/banner_linkedin_finanzas_decodificadas.png", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/04_audiovisual_y_sitcom/banner_linkedin_finanzas_decodificadas.png", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/04_audiovisual_y_sitcom/banner_linkedin_finanzas_decodificadas.png", "tipo": "imagen", "tamano_kb": 40.8, "tags": ["Banner", "LinkedIn", "Marca"]}, {"id": "biblia_recreacion_personajes_sitcom", "titulo": "Biblia de Personajes Sitcom (@whileshesout.tv)", "descripcion": "Fichas de Arthur, Bull, Sofía y Amatista con prompts de consistencia visual.", "categoria": "audiovisual_y_sitcom", "categoria_nombre": "🎬 Producción Audiovisual, Sitcom & Remotion", "archivo": "biblia_recreacion_personajes_sitcom.md", "ruta_relativa": "artefactos/04_audiovisual_y_sitcom/biblia_recreacion_personajes_sitcom.md", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/04_audiovisual_y_sitcom/biblia_recreacion_personajes_sitcom.md", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/04_audiovisual_y_sitcom/biblia_recreacion_personajes_sitcom.md", "tipo": "markdown", "tamano_kb": 3.4, "tags": ["Sitcom", "Arthur", "Personajes", "9:16"]}, {"id": "CASO_ESTUDIO_13_AGENTES_ECOMMERCE_JUAN_GIMENEZ", "titulo": "Caso de Estudio: 13 Agentes de E-Commerce (Juan Giménez)", "descripcion": "Oficina virtual automatizada donde 13 agentes operan creativos, pauta y tiendas 24/7.", "categoria": "audiovisual_y_sitcom", "categoria_nombre": "🎬 Producción Audiovisual, Sitcom & Remotion", "archivo": "CASO_ESTUDIO_13_AGENTES_ECOMMERCE_JUAN_GIMENEZ.md", "ruta_relativa": "artefactos/04_audiovisual_y_sitcom/CASO_ESTUDIO_13_AGENTES_ECOMMERCE_JUAN_GIMENEZ.md", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/04_audiovisual_y_sitcom/CASO_ESTUDIO_13_AGENTES_ECOMMERCE_JUAN_GIMENEZ.md", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/04_audiovisual_y_sitcom/CASO_ESTUDIO_13_AGENTES_ECOMMERCE_JUAN_GIMENEZ.md", "tipo": "markdown", "tamano_kb": 4.4, "tags": ["E-Commerce", "13 Agentes", "Shopify", "Escala"]}, {"id": "elenco_completo_sitcom", "titulo": "Póster Oficial: Elenco Sitcom", "descripcion": "Arte conceptual de Arthur, Bull, Sofía y Amatista en alta resolución.", "categoria": "audiovisual_y_sitcom", "categoria_nombre": "🎬 Producción Audiovisual, Sitcom & Remotion", "archivo": "elenco_completo_sitcom.png", "ruta_relativa": "artefactos/04_audiovisual_y_sitcom/elenco_completo_sitcom.png", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/04_audiovisual_y_sitcom/elenco_completo_sitcom.png", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/04_audiovisual_y_sitcom/elenco_completo_sitcom.png", "tipo": "imagen", "tamano_kb": 2752.8, "tags": ["Póster", "Sitcom", "Arte Conceptual"]}, {"id": "ficha_amatista", "titulo": "Ficha Visual: Amatista", "descripcion": "Diseño de personaje y referencia de render para Amatista.", "categoria": "audiovisual_y_sitcom", "categoria_nombre": "🎬 Producción Audiovisual, Sitcom & Remotion", "archivo": "ficha_amatista.png", "ruta_relativa": "artefactos/04_audiovisual_y_sitcom/ficha_amatista.png", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/04_audiovisual_y_sitcom/ficha_amatista.png", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/04_audiovisual_y_sitcom/ficha_amatista.png", "tipo": "imagen", "tamano_kb": 1420.4, "tags": ["Amatista", "Ficha", "Render"]}, {"id": "ficha_arthur", "titulo": "Ficha Visual: Arthur", "descripcion": "Diseño de personaje y referencia de render para Arthur.", "categoria": "audiovisual_y_sitcom", "categoria_nombre": "🎬 Producción Audiovisual, Sitcom & Remotion", "archivo": "ficha_arthur.png", "ruta_relativa": "artefactos/04_audiovisual_y_sitcom/ficha_arthur.png", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/04_audiovisual_y_sitcom/ficha_arthur.png", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/04_audiovisual_y_sitcom/ficha_arthur.png", "tipo": "imagen", "tamano_kb": 1976.5, "tags": ["Arthur", "Ficha", "Render"]}, {"id": "ficha_bull", "titulo": "Ficha Visual: Bull", "descripcion": "Diseño de personaje y referencia de render para Bull.", "categoria": "audiovisual_y_sitcom", "categoria_nombre": "🎬 Producción Audiovisual, Sitcom & Remotion", "archivo": "ficha_bull.png", "ruta_relativa": "artefactos/04_audiovisual_y_sitcom/ficha_bull.png", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/04_audiovisual_y_sitcom/ficha_bull.png", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/04_audiovisual_y_sitcom/ficha_bull.png", "tipo": "imagen", "tamano_kb": 3041.3, "tags": ["Bull", "Ficha", "Render"]}, {"id": "ficha_sofia", "titulo": "Ficha Visual: Sofía", "descripcion": "Diseño de personaje y referencia de render para Sofía.", "categoria": "audiovisual_y_sitcom", "categoria_nombre": "🎬 Producción Audiovisual, Sitcom & Remotion", "archivo": "ficha_sofia.png", "ruta_relativa": "artefactos/04_audiovisual_y_sitcom/ficha_sofia.png", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/04_audiovisual_y_sitcom/ficha_sofia.png", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/04_audiovisual_y_sitcom/ficha_sofia.png", "tipo": "imagen", "tamano_kb": 1589.4, "tags": ["Sofía", "Ficha", "Render"]}, {"id": "GUIA_ROOTLAB_MOTION_GRAPHICS_REMOTION", "titulo": "Guía RootLab: Motion Graphics con Remotion", "descripcion": "Pipeline React + FFmpeg para renderizado programático de videos verticales 9:16.", "categoria": "audiovisual_y_sitcom", "categoria_nombre": "🎬 Producción Audiovisual, Sitcom & Remotion", "archivo": "GUIA_ROOTLAB_MOTION_GRAPHICS_REMOTION.md", "ruta_relativa": "artefactos/04_audiovisual_y_sitcom/GUIA_ROOTLAB_MOTION_GRAPHICS_REMOTION.md", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/04_audiovisual_y_sitcom/GUIA_ROOTLAB_MOTION_GRAPHICS_REMOTION.md", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/04_audiovisual_y_sitcom/GUIA_ROOTLAB_MOTION_GRAPHICS_REMOTION.md", "tipo": "markdown", "tamano_kb": 1.3, "tags": ["Remotion", "React", "Video 9:16", "Motion Graphics"]}, {"id": "COMPENDIO_350_FUENTES_CIBERSEGURIDAD", "titulo": "Compendio de 350+ Fuentes de Ciberseguridad", "descripcion": "Bóveda curada de repositorios, cheatsheets, labs de hacking ético y pentesting.", "categoria": "desarrollo_data_science_y_seguridad", "categoria_nombre": "🐍 Python, Data Science, AEO & Ciberseguridad", "archivo": "COMPENDIO_350_FUENTES_CIBERSEGURIDAD.md", "ruta_relativa": "artefactos/05_desarrollo_data_science_y_seguridad/COMPENDIO_350_FUENTES_CIBERSEGURIDAD.md", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/05_desarrollo_data_science_y_seguridad/COMPENDIO_350_FUENTES_CIBERSEGURIDAD.md", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/05_desarrollo_data_science_y_seguridad/COMPENDIO_350_FUENTES_CIBERSEGURIDAD.md", "tipo": "markdown", "tamano_kb": 2.2, "tags": ["Ciberseguridad", "Hacking Ético", "350 Fuentes", "Pentesting"]}, {"id": "CURSO_PYTHON_DATA_ANALYST_33_MODULOS", "titulo": "Curso Maestro Python Data Analyst (33 Módulos)", "descripcion": "Curso exhaustivo con teoría, retos, tests unitarios assert y soluciones aplicadas.", "categoria": "desarrollo_data_science_y_seguridad", "categoria_nombre": "🐍 Python, Data Science, AEO & Ciberseguridad", "archivo": "CURSO_PYTHON_DATA_ANALYST_33_MODULOS.md", "ruta_relativa": "artefactos/05_desarrollo_data_science_y_seguridad/CURSO_PYTHON_DATA_ANALYST_33_MODULOS.md", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/05_desarrollo_data_science_y_seguridad/CURSO_PYTHON_DATA_ANALYST_33_MODULOS.md", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/05_desarrollo_data_science_y_seguridad/CURSO_PYTHON_DATA_ANALYST_33_MODULOS.md", "tipo": "markdown", "tamano_kb": 89.1, "tags": ["Python", "Data Analyst", "33 Módulos", "Tests"]}, {"id": "GUIA_JJ_PYTHON_BOOK_VSCODE", "titulo": "JJ_PYTHON_BOOK (Joe Fernández Diniz)", "descripcion": "21 capítulos interactivos diseñados para programar directamente en Visual Studio Code.", "categoria": "desarrollo_data_science_y_seguridad", "categoria_nombre": "🐍 Python, Data Science, AEO & Ciberseguridad", "archivo": "GUIA_JJ_PYTHON_BOOK_VSCODE.md", "ruta_relativa": "artefactos/05_desarrollo_data_science_y_seguridad/GUIA_JJ_PYTHON_BOOK_VSCODE.md", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/05_desarrollo_data_science_y_seguridad/GUIA_JJ_PYTHON_BOOK_VSCODE.md", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/05_desarrollo_data_science_y_seguridad/GUIA_JJ_PYTHON_BOOK_VSCODE.md", "tipo": "markdown", "tamano_kb": 3.8, "tags": ["VS Code", "Python Interactivo", "21 Capítulos"]}, {"id": "GUIA_JPV_PYSTUDIO_DATA_SCIENCE", "titulo": "JPV PyStudio: Data Science en WebAssembly (Juancito Peña)", "descripcion": "Estación de trabajo analítica en el navegador con Pyodide (Python 3.12) y \\$0 en backend.", "categoria": "desarrollo_data_science_y_seguridad", "categoria_nombre": "🐍 Python, Data Science, AEO & Ciberseguridad", "archivo": "GUIA_JPV_PYSTUDIO_DATA_SCIENCE.md", "ruta_relativa": "artefactos/05_desarrollo_data_science_y_seguridad/GUIA_JPV_PYSTUDIO_DATA_SCIENCE.md", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/05_desarrollo_data_science_y_seguridad/GUIA_JPV_PYSTUDIO_DATA_SCIENCE.md", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/05_desarrollo_data_science_y_seguridad/GUIA_JPV_PYSTUDIO_DATA_SCIENCE.md", "tipo": "markdown", "tamano_kb": 2.1, "tags": ["WebAssembly", "Pyodide", "Data Science", "Navegador"]}, {"id": "GUIA_MAESTRA_AEO_GEO_SEARCH_IA", "titulo": "Guía Maestra AEO & GEO para Motores de IA", "descripcion": "Estrategia para posicionar en ChatGPT Search, Perplexity y Google AI Overviews.", "categoria": "desarrollo_data_science_y_seguridad", "categoria_nombre": "🐍 Python, Data Science, AEO & Ciberseguridad", "archivo": "GUIA_MAESTRA_AEO_GEO_SEARCH_IA.md", "ruta_relativa": "artefactos/05_desarrollo_data_science_y_seguridad/GUIA_MAESTRA_AEO_GEO_SEARCH_IA.md", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/05_desarrollo_data_science_y_seguridad/GUIA_MAESTRA_AEO_GEO_SEARCH_IA.md", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/05_desarrollo_data_science_y_seguridad/GUIA_MAESTRA_AEO_GEO_SEARCH_IA.md", "tipo": "markdown", "tamano_kb": 3.9, "tags": ["AEO", "GEO", "ChatGPT Search", "Perplexity"]}, {"id": "GUIA_ROOTLAB_HOMELAB_DOCKER_SERVER", "titulo": "Guía RootLab: Homelab con Docker y Mini PC", "descripcion": "Despliegue de servidor local de bajo consumo para agentes autónomos y LLMs.", "categoria": "desarrollo_data_science_y_seguridad", "categoria_nombre": "🐍 Python, Data Science, AEO & Ciberseguridad", "archivo": "GUIA_ROOTLAB_HOMELAB_DOCKER_SERVER.md", "ruta_relativa": "artefactos/05_desarrollo_data_science_y_seguridad/GUIA_ROOTLAB_HOMELAB_DOCKER_SERVER.md", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/05_desarrollo_data_science_y_seguridad/GUIA_ROOTLAB_HOMELAB_DOCKER_SERVER.md", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/05_desarrollo_data_science_y_seguridad/GUIA_ROOTLAB_HOMELAB_DOCKER_SERVER.md", "tipo": "markdown", "tamano_kb": 2.3, "tags": ["Docker", "Homelab", "Mini PC", "Linux"]}, {"id": "HERRAMIENTAS_EXTRACCION_PAPERS_RAG", "titulo": "Herramientas de Extracción de PDFs y Papers para RAG", "descripcion": "Comparativa técnica de Docling, Marker, Nougat, GROBID y CERMINE.", "categoria": "desarrollo_data_science_y_seguridad", "categoria_nombre": "🐍 Python, Data Science, AEO & Ciberseguridad", "archivo": "HERRAMIENTAS_EXTRACCION_PAPERS_RAG.md", "ruta_relativa": "artefactos/05_desarrollo_data_science_y_seguridad/HERRAMIENTAS_EXTRACCION_PAPERS_RAG.md", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/05_desarrollo_data_science_y_seguridad/HERRAMIENTAS_EXTRACCION_PAPERS_RAG.md", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/05_desarrollo_data_science_y_seguridad/HERRAMIENTAS_EXTRACCION_PAPERS_RAG.md", "tipo": "markdown", "tamano_kb": 2.5, "tags": ["RAG", "Docling", "Marker", "PDF Parsing"]}, {"id": "Acta_Absorcion_PyStudio_JJPython_TI_IA_Agendador", "titulo": "Acta de Auditoría: PyStudio, JJ_Python, TI/IA y Agendador", "descripcion": "Dictamen de absorción integral de herramientas analíticas y de gobernanza.", "categoria": "actas_y_auditorias", "categoria_nombre": "🏛️ Actas de Auditoría & Segundo Cerebro", "archivo": "Acta_Absorcion_PyStudio_JJPython_TI_IA_Agendador.md", "ruta_relativa": "artefactos/06_actas_y_auditorias/Acta_Absorcion_PyStudio_JJPython_TI_IA_Agendador.md", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/06_actas_y_auditorias/Acta_Absorcion_PyStudio_JJPython_TI_IA_Agendador.md", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/06_actas_y_auditorias/Acta_Absorcion_PyStudio_JJPython_TI_IA_Agendador.md", "tipo": "markdown", "tamano_kb": 2.4, "tags": ["Acta", "Auditoría", "Obsidian", "Gobernanza"]}, {"id": "Acta_Agency_Squad_AEO_RAG_Cybersecurity", "titulo": "Acta de Auditoría: Agency Squad, AEO, RAG y Ciberseguridad", "descripcion": "Acta ejecutiva del comité de agentes sobre nuevas habilidades absorbidas.", "categoria": "actas_y_auditorias", "categoria_nombre": "🏛️ Actas de Auditoría & Segundo Cerebro", "archivo": "Acta_Agency_Squad_AEO_RAG_Cybersecurity.md", "ruta_relativa": "artefactos/06_actas_y_auditorias/Acta_Agency_Squad_AEO_RAG_Cybersecurity.md", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/06_actas_y_auditorias/Acta_Agency_Squad_AEO_RAG_Cybersecurity.md", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/06_actas_y_auditorias/Acta_Agency_Squad_AEO_RAG_Cybersecurity.md", "tipo": "markdown", "tamano_kb": 4.7, "tags": ["Acta", "Agency Squad", "AEO", "RAG"]}, {"id": "Guia_HttpSms_Gateway_Android", "titulo": "Guía de Integración Local httpSMS Gateway", "descripcion": "Arquitectura de enlace entre teléfonos Android físicos y el servidor recepcionista.", "categoria": "actas_y_auditorias", "categoria_nombre": "🏛️ Actas de Auditoría & Segundo Cerebro", "archivo": "Guia_HttpSms_Gateway_Android.md", "ruta_relativa": "artefactos/06_actas_y_auditorias/Guia_HttpSms_Gateway_Android.md", "github_url": "https://github.com/gfauche/gfauche/blob/main/artefactos/06_actas_y_auditorias/Guia_HttpSms_Gateway_Android.md", "raw_url": "https://raw.githubusercontent.com/gfauche/gfauche/main/artefactos/06_actas_y_auditorias/Guia_HttpSms_Gateway_Android.md", "tipo": "markdown", "tamano_kb": 4.6, "tags": ["httpSMS", "Gateway", "Android", "SIM Local"]}];
+        let currentCategory = 'all';
+        let searchQuery = '';
+
+        const grid = document.getElementById('artifactsGrid');
+        const searchInput = document.getElementById('searchInput');
+        const pills = document.querySelectorAll('.pill');
+        const modal = document.getElementById('modalOverlay');
+        const modalClose = document.getElementById('modalClose');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
+
+        function render() {
+            const filtered = ARTEFACTOS.filter(item => {
+                const matchesCat = currentCategory === 'all' || item.categoria.includes(currentCategory);
+                const textSearch = (item.titulo + ' ' + item.descripcion + ' ' + item.tags.join(' ')).toLowerCase();
+                const matchesSearch = textSearch.includes(searchQuery.toLowerCase());
+                return matchesCat && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div style="font-size: 36px; margin-bottom: 12px;">🔍</div>
+                        <h3>No se encontraron artefactos</h3>
+                        <p>Intenta con otros términos o cambia la categoría de filtro.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(item => `
+                <div class="card">
+                    <div class="card-top">
+                        <div class="card-meta">
+                            <span class="type-badge badge-${item.tipo}">${item.tipo}</span>
+                            <span class="file-size">${item.tamano_kb} KB</span>
+                        </div>
+                        <h3 class="card-title">${item.titulo}</h3>
+                        <p class="card-desc">${item.descripcion}</p>
+                        <div class="tag-cloud">
+                            ${item.tags.map(t => `<span class="tag">#${t}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="action-link link-view" onclick="verArtefacto('${item.id}')">
+                            ${item.tipo === 'imagen' ? '🖼️ Ver Imagen' : '📖 Leer Documento'}
+                        </button>
+                        <a href="${item.github_url}" target="_blank" class="action-link link-gh">
+                            GitHub ↗
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Filtro por texto
+        searchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            render();
+        });
+
+        // Filtro por categoría
+        pills.forEach(pill => {
+            pill.addEventListener('click', () => {
+                pills.forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+                currentCategory = pill.getAttribute('data-cat');
+                render();
+            });
+        });
+
+        // Modal de Vista Previa
+        async function verArtefacto(id) {
+            const item = ARTEFACTOS.find(a => a.id === id);
+            if (!item) return;
+
+            modalTitle.innerText = item.titulo;
+            modal.style.display = 'flex';
+
+            if (item.tipo === 'imagen') {
+                modalBody.innerHTML = `
+                    <div style="text-align:center;">
+                        <img src="${item.ruta_relativa}" style="max-height: 60vh; object-fit: contain;">
+                        <p style="margin-top: 16px;"><a href="${item.ruta_relativa}" download class="btn btn-primary">Descargar Imagen en HD</a></p>
+                    </div>
+                `;
+            } else if (item.tipo === 'pdf') {
+                modalBody.innerHTML = `
+                    <div style="text-align:center; padding: 40px 0;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">📄</div>
+                        <h3>${item.archivo}</h3>
+                        <p style="margin: 12px 0 24px; color:#94a3b8;">Documento PDF de alta resolución listo para lectura o distribución.</p>
+                        <a href="${item.ruta_relativa}" target="_blank" class="btn btn-primary">Abrir PDF ↗</a>
+                    </div>
+                `;
+            } else {
+                modalBody.innerHTML = '<p style="color:#94a3b8;">Cargando contenido del archivo...</p>';
+                try {
+                    const resp = await fetch(item.ruta_relativa);
+                    if (resp.ok) {
+                        const raw = await resp.text();
+                        if (item.tipo === 'markdown') {
+                            modalBody.innerHTML = marked.parse(raw);
+                        } else {
+                            modalBody.innerHTML = `<pre><code>${raw.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>`;
+                        }
+                    } else {
+                        modalBody.innerHTML = `<p>No se pudo cargar de forma local directa. <a href="${item.github_url}" target="_blank" style="color:#38bdf8;">Abrir directamente en GitHub ↗</a></p>`;
+                    }
+                } catch (e) {
+                    modalBody.innerHTML = `<p>Visualización disponible en GitHub: <a href="${item.github_url}" target="_blank" style="color:#38bdf8;">Ver archivo en repositorio ↗</a></p>`;
+                }
+            }
+        }
+
+        modalClose.addEventListener('click', () => { modal.style.display = 'none'; });
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
+
+        // Inicializar
+        render();
+    </script>
+</body>
+</html>
